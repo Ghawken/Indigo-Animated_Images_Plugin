@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<MenuItems>
+    <MenuItem id="showAll">
+        <Name>Log all Holidays</Name>
+        <CallbackMethod>show_holidays</CallbackMethod>
+    </MenuItem>
+</MenuItems>
