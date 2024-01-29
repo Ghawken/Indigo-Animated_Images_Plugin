@@ -13,8 +13,7 @@ import traceback
 import platform
 import sys
 from os import path
-import datetime
-import asyncio
+
 
 from frame_server import ImageFrameServer
 
@@ -79,13 +78,11 @@ class Plugin(indigo.PluginBase):
             self.fileloglevel = logging.DEBUG
 
         self.logger.removeHandler(self.indigo_log_handler)
-
         self.indigo_log_handler = IndigoLogHandler(plugin_display_name, logging.INFO)
         ifmt = logging.Formatter("%(message)s")
         self.indigo_log_handler.setFormatter(ifmt)
         self.indigo_log_handler.setLevel(self.logLevel)
         self.logger.addHandler(self.indigo_log_handler)
-
         pfmt = logging.Formatter('%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s.%(funcName)s:\t%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         self.plugin_file_handler.setFormatter(pfmt)
         self.plugin_file_handler.setLevel(self.fileloglevel)
@@ -115,14 +112,14 @@ class Plugin(indigo.PluginBase):
         self.logger.info(u"{0:=^130}".format(" End Initializing New Plugin  "))
 
         self.server_thread = None
-        self.frame_server = ImageFrameServer(logger=self.logger)
+        self.frame_server = ImageFrameServer(logger=self.logger, plugin=self)
 
     ########################################
     def get_macos_version(self):
         try:
             version, _, _ = platform.mac_ver()
             longer_version = platform.platform()
-            self.logger.info(f"{version}")
+            self.logger.debug(f"{version}")
             longer_name = self.get_macos_marketing_name(version)
             return version, longer_version, longer_name
         except:
@@ -183,7 +180,7 @@ class Plugin(indigo.PluginBase):
             # Since we're inside the class method, we can directly use self.frame_server
             if self.debug1:
                 self.logger.debug(f"Handling GIF request {gif_name}")
-            frame_data, content_type = await self.frame_server.get_next_frame(gif_name)
+            frame_data, content_type = await self.frame_server.get_next_frame(request, gif_name)
             return response.raw(frame_data, content_type=content_type)
 
         @app.middleware('request')
