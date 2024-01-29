@@ -4,8 +4,9 @@
 import indigo
 import sanic
 from sanic import Sanic, response
+
 from PIL import Image, ImageSequence
-import io
+
 import os
 import logging
 
@@ -111,7 +112,11 @@ class Plugin(indigo.PluginBase):
         self.debug2 = self.pluginPrefs.get('debug2', False)
         self.logger.info(u"{0:=^130}".format(" End Initializing New Plugin  "))
 
+        pyatv_logging = logging.getLogger("sanic")
+        pyatv_logging.setLevel(logging.DEBUG)
+        pyatv_logging.addHandler(self.plugin_file_handler)
         self.server_thread = None
+
         self.frame_server = ImageFrameServer(logger=self.logger, plugin=self)
 
     ########################################
@@ -175,6 +180,7 @@ class Plugin(indigo.PluginBase):
 
         self.logger.debug("Within Run Sanic Server")
         app = Sanic("AnimatedImage")
+        self.logger.debug(f"{app}")
 
         async def handle_gif_request(request, gif_name):
             # Since we're inside the class method, we can directly use self.frame_server
@@ -198,6 +204,7 @@ class Plugin(indigo.PluginBase):
             app.add_route(handle_gif_request, '/<gif_name>', methods=['GET'])
             app.run(host="127.0.0.1", port=8405, debug=True, single_process=True, register_sys_signals=False )
             self.logger.debug("After App Run.")
+
         except:
             self.logger.exception("Exception in run sanic server:")
 
@@ -250,7 +257,7 @@ class Plugin(indigo.PluginBase):
                 self.sleep(60)
 
         except self.StopThread:
-            pass  # Optionally catch the StopThread exception and do any needed cleanup.
+            pass  # Optionally catch  the StopThread exception and do any needed cleanup.
 
     #######################################
     ## Sanic

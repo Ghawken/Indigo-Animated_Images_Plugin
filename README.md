@@ -9,7 +9,7 @@ Basically it adds animated images either Gifs or Webm to Pictures/Indigo-Animate
 
 Then Add URL to images via
 
-http://127.0.0.1:8405/homer.gif
+http://127.0.0.1:8405/duck.gif
 
 to Any control page as a refreshing URL.  This will be animated at the time frequency you set in the control page settings.
 
@@ -59,7 +59,7 @@ Enables or displays display of image.  If false a blank, transparent image will 
 ### **Allows substitution of both variable and device states.**
 eg. Variable true/false, or device state On or Off
 
-http://127.0.0.1:8405/bolt.gif?show=%%v:12312123%%
+http://127.0.0.1:8405/duck.gif?show=%%v:12312123%%
 
 Allows use of animated gif's depending on either device state or variable state.
 

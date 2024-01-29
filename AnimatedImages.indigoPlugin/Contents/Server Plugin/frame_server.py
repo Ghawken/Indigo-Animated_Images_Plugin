@@ -37,7 +37,6 @@ class ImageFrameServer:
             self.logger.error(f"'not_found.jpg' not found at {not_found_path}.")
             self.not_found_image_data = None
 
-
     def add_to_cache(self, key, value):
         try:
             if len(self.frame_cache) >= self.MAX_CACHE_SIZE:
