@@ -18,6 +18,7 @@ from os import path
 
 from frame_server import ImageFrameServer
 
+import asyncio
 import threading
 
 class IndigoLogHandler(logging.Handler):
@@ -115,8 +116,8 @@ class Plugin(indigo.PluginBase):
         pyatv_logging = logging.getLogger("sanic")
         pyatv_logging.setLevel(logging.DEBUG)
         pyatv_logging.addHandler(self.plugin_file_handler)
-        self.server_thread = None
 
+        self.server_thread = None
         self.frame_server = ImageFrameServer(logger=self.logger, plugin=self)
 
     ########################################
@@ -176,6 +177,7 @@ class Plugin(indigo.PluginBase):
             self.logger.error(f'Error Accessing Save Directory.{self.saveDirectory} ')
             pass
 
+
     def run_sanic_server(self):
 
         self.logger.debug("Within Run Sanic Server")
@@ -213,7 +215,6 @@ class Plugin(indigo.PluginBase):
             self.server_thread = threading.Thread(target=self.run_sanic_server, args=(), daemon=True)
             self.server_thread.start()
             self.logger.debug("Sanic server thread started.")
-
     def shutdown(self):
         self.logger.debug("shutdown called")
 

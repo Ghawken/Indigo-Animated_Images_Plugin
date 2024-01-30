@@ -5,8 +5,13 @@ from PIL import Image, ImageSequence
 import io
 import os
 import indigo
+import asyncio
+import aiofiles
 # from pympler import asizeof  ## works well - rather avoid dependncy
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor(max_workers=20)  # Adjust the number of workers as needed
 
 class ImageFrameServer:
     def __init__(self, logger, plugin):
@@ -47,6 +52,7 @@ class ImageFrameServer:
             self.logger.debug(f"Added {key} to cache. Current cache size: {len(self.frame_cache)} items.")
         except:
             self.logger.exception("add_to_cached error")
+
     async def get_next_frame(self, request, gif_name):
         try:
             gif_path = os.path.join(self.saveDirectory, gif_name)
@@ -100,3 +106,4 @@ class ImageFrameServer:
             return frame_data, 'image/png'
         except:
             self.logger.exception("Caught Exception get_next_frame Sanic App")
+            raise
