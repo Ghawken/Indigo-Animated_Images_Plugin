@@ -56,24 +56,23 @@ class ImageFrameServer:
     async def get_next_frame(self, request, gif_name):
         try:
             gif_path = os.path.join(self.saveDirectory, gif_name)
-            # get args first
-            # show
-            show_image = request.args.get("show", "true")
-            show_image = self.plugin.substitute(show_image)
-            show_image = show_image.lower() in ("yes", "true","1", "yeah", "yep", "ok", "on","active","activated", "home", "100")
+            # Get args first
+            # 'show' argument
+            show_image_arg = request.args.get("show", "true")
+            show_image = self.plugin.substitute(show_image_arg)
+            show_image = show_image.lower() in ("yes", "true", "1", "yeah", "yep", "ok", "on", "active", "activated", "home", "100")
             if self.plugin.debug1:
                 self.logger.debug(f"{show_image=}")
+
+            # If show_image is False, just return blank data instead of an image
             if not show_image:
-                # If show_image is False, just return blank data instead of an image.
                 return b'', 'image/jpeg'
-            ## 2nd args
+
+            # 'id' argument for unique frame counter
+            unique_id = request.args.get("id", gif_name)
 
             # Check if GIF frames are already cached
-            if gif_name in self.frame_cache:
-                if self.plugin.debug1:
-                    self.logger.debug(f"Serving {gif_name} frame {self.counters[gif_name] % len(self.frame_cache[gif_name])} from cache")
-                frames = self.frame_cache[gif_name]
-            else:
+            if gif_name not in self.frame_cache:
                 if not os.path.exists(gif_path):
                     if self.plugin.debug1:
                         self.logger.debug("Serving cached 'not found' image.")
@@ -83,27 +82,24 @@ class ImageFrameServer:
                     if img.format in ['GIF', 'WEBP'] and img.is_animated:
                         frames = [frame.copy() for frame in ImageSequence.Iterator(img)]
                     else:
-                        frames = [img.copy()]  # Treat as single frame
+                        frames = [img.copy()]  # Treat as a single frame
                     # Convert and cache frames
                     cached_frames = []
                     for frame in frames:
                         byte_io = io.BytesIO()
-                        # If the image is in a mode that doesn't support transparency (e.g., 'P' mode for GIFs),
-                        # convert it to 'RGBA' to ensure transparency is retained in the PNG output.
-                        # However, be aware that 'convert' doesn't apply to 'WEBP' as they should already support transparency.
                         if frame.mode == 'P':
                             frame = frame.convert('RGBA')
                         frame.save(byte_io, 'PNG')
                         cached_frames.append(byte_io.getvalue())
                     self.add_to_cache(gif_name, cached_frames)
 
-            # Serving frames from cache or newly cached
-            if gif_name not in self.counters:
-                self.counters[gif_name] = 0
-            frame_data = self.frame_cache[gif_name][self.counters[gif_name] % len(self.frame_cache[gif_name])]
-            self.counters[gif_name] += 1
-
+            # Check if we need to increment the individual frame counter for Unique ID
+            if unique_id not in self.counters:
+                self.counters[unique_id] = 0
+            # Get the next frame to serve
+            frame_data = self.frame_cache[gif_name][self.counters[unique_id] % len(self.frame_cache[gif_name])]
+            self.counters[unique_id] += 1
             return frame_data, 'image/png'
         except:
-            self.logger.exception("Caught Exception get_next_frame Sanic App")
+            self.logger.exception("Caught Exception in get_next_frame Sanic App")
             raise

@@ -61,8 +61,23 @@ eg. Variable true/false, or device state On or Off
 
 http://127.0.0.1:8405/duck.gif?show=%%v:12312123%%
 
-Allows use of animated gif's depending on either device state or variable state.
+Allows use of animated gif's depending on either device state or variable state.  Probably not this duck!
 
 ![duck.gif](Images%2Fduck.gif)
 
+### 2. id=
+
+Pass a Id variable for unique id purposes if using multiple same gif filenames in same page.
+
+Otherwise without this and multiple same filenames all frames of every image would be same.  Id usage fixes this issue.
+
+http://127.0.0.1:8405/duck.gif?id=123
+
+http://127.0.0.1:8405/duck.gif?id=145
+
+Enable 2 same gifs to be displayed, using same memory footprint but keeping frames seperate.
+
+Compatible with combining Control options for example
+
+http://127.0.0.1:8405/duck.gif?id=123&show=%%v:12312123%%
 
